@@ -1,0 +1,28 @@
+# Render Blueprint — one web service (Docker) + managed Postgres.
+# Deploy: push to GitHub, then on render.com "New + → Blueprint" → pick this repo.
+services:
+  - type: web
+    name: jyotish
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4321
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jyotish-db
+          property: connectionString
+      # Set these in the Render dashboard (Supabase project → Settings → API):
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+
+databases:
+  - name: jyotish-db
+    plan: basic-256mb
+    postgresMajorVersion: "16"
