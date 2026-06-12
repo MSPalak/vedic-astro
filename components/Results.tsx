@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AskAstrologer from "./AskAstrologer";
 
 const ABBR: Record<string, string> = {
   Sun: "Su",
@@ -169,6 +170,36 @@ export default function Results({
             </div>
           </div>
 
+          <AskAstrologer data={data} />
+
+          {c.navamsa && (
+            <div className="cards">
+              <div className="glass">
+                <h3>Navamsa (D9) · Marriage &amp; Inner Promise</h3>
+                <NorthChart houses={c.navamsa.houses} />
+              </div>
+              <div className="glass">
+                <h3>Aspects (Graha Drishti)</h3>
+                {c.aspects?.map((a: any) => (
+                  <p key={a.from} style={{ fontSize: 13, margin: "6px 0" }}>
+                    <b>{a.from}</b> aspects house
+                    {a.aspects.length > 1 ? "s" : ""} {a.aspects.join(", ")}
+                    {a.planetsAspected?.length > 0 && (
+                      <span className="muted">
+                        {" "}
+                        — touching {a.planetsAspected.join(", ")}
+                      </span>
+                    )}
+                  </p>
+                ))}
+                <p className="muted" style={{ fontSize: 12 }}>
+                  D9 Lagna: <b>{c.navamsa.ascRashi}</b>. A planet in the same
+                  sign in D1 and D9 (vargottama) gains stability.
+                </p>
+              </div>
+            </div>
+          )}
+
           {ip && (
             <>
               <div className="glass">
@@ -254,8 +285,9 @@ export default function Results({
                     <td>{p.nakshatra}</td>
                     <td>{p.pada}</td>
                     <td>{p.house}</td>
-                    <td className={p.retrograde ? "retro" : ""}>
+                    <td className={p.retrograde || p.combust ? "retro" : ""}>
                       {p.retrograde ? "Retrograde" : "Direct"}
+                      {p.combust ? " · Combust" : ""}
                     </td>
                   </tr>
                 ))}

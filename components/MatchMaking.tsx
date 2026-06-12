@@ -1,7 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PlaceInput, { type GeoResult } from "./PlaceInput";
+
+// Animated count-up ring: sweeps the conic fill and counts the score.
+function ScoreRing({
+  total,
+  percent,
+  tone,
+}: {
+  total: number;
+  percent: number;
+  tone: string;
+}) {
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const dur = 1300;
+    const tick = (now: number) => {
+      const k = Math.min(1, (now - start) / dur);
+      const ease = 1 - Math.pow(1 - k, 3);
+      setT(ease);
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [total, percent]);
+
+  return (
+    <div
+      className={`score-ring ${tone}`}
+      style={{ ["--p" as any]: `${percent * t}%` }}
+    >
+      <div>
+        <strong>{(total * t).toFixed(1).replace(/\.0$/, "")}</strong>
+        <span>/ 36</span>
+      </div>
+    </div>
+  );
+}
 
 type P = {
   name: string;
@@ -136,15 +174,7 @@ export default function MatchMaking({
         </div>
 
         <div className="glass" style={{ textAlign: "center" }}>
-          <div
-            className={`score-ring ${tone}`}
-            style={{ ["--p" as any]: `${res.percent}%` }}
-          >
-            <div>
-              <strong>{res.total}</strong>
-              <span>/ 36</span>
-            </div>
-          </div>
+          <ScoreRing total={res.total} percent={res.percent} tone={tone} />
           <h2 style={{ margin: "10px 0 4px" }}>
             {res.percent}% compatibility
           </h2>

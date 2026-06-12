@@ -2,13 +2,58 @@
 // No fortune-telling fluff: every line is derived from planetary dignity,
 // house type and real Dasha dates/durations.
 
+import { DRISHTI } from "./vedic";
+
 type Planet = {
   name: string;
   signIndex: number;
   rashi: string;
   house: number;
   retrograde: boolean;
+  combust?: boolean;
+  navamsaSign?: number;
 };
+
+// Natural planetary friendships (classical).
+const N_FRIENDS: Record<string, string[]> = {
+  Sun: ["Moon", "Mars", "Jupiter"],
+  Moon: ["Sun", "Mercury"],
+  Mars: ["Sun", "Moon", "Jupiter"],
+  Mercury: ["Sun", "Venus"],
+  Jupiter: ["Sun", "Moon", "Mars"],
+  Venus: ["Mercury", "Saturn"],
+  Saturn: ["Mercury", "Venus"],
+};
+const N_ENEMIES: Record<string, string[]> = {
+  Sun: ["Venus", "Saturn"],
+  Moon: [],
+  Mars: ["Mercury"],
+  Mercury: ["Moon"],
+  Jupiter: ["Mercury", "Venus"],
+  Venus: ["Sun", "Moon"],
+  Saturn: ["Sun", "Moon", "Mars"],
+};
+
+const RASHI_LORD_OF: string[] = [
+  "Mars",
+  "Venus",
+  "Mercury",
+  "Moon",
+  "Sun",
+  "Mercury",
+  "Venus",
+  "Mars",
+  "Jupiter",
+  "Saturn",
+  "Saturn",
+  "Jupiter",
+];
+
+function receivesAspectFrom(p: Planet, q: Planet): boolean {
+  const offs = DRISHTI[q.name];
+  if (!offs || q.name === p.name) return false;
+  return offs.includes((((p.signIndex - q.signIndex) % 12) + 12) % 12);
+}
 
 // signIndex: 0=Aries ... 11=Pisces
 const EXALT: Record<string, number> = {
@@ -64,11 +109,17 @@ export type Status = "good" | "okay" | "challenging";
 function dignity(name: string, signIndex: number) {
   if (EXALT[name] === signIndex) return { tag: "exalted", score: 2 };
   if (DEBIL[name] === signIndex) return { tag: "debilitated", score: -2 };
-  if (OWN[name]?.includes(signIndex)) return { tag: "in its own sign", score: 1.5 };
+  if (OWN[name]?.includes(signIndex))
+    return { tag: "in its own sign", score: 1.5 };
+  const lord = RASHI_LORD_OF[signIndex];
+  if (N_FRIENDS[name]?.includes(lord))
+    return { tag: "in a friend's sign", score: 0.75 };
+  if (N_ENEMIES[name]?.includes(lord))
+    return { tag: "in an enemy's sign", score: -0.75 };
   return { tag: "in a neutral sign", score: 0 };
 }
 
-function planetReading(p: Planet) {
+function planetReading(p: Planet, all: Planet[] = []) {
   // Nodes: judged purely by house (no rulership).
   if (p.name === "Rahu" || p.name === "Ketu") {
     const dus = DUSTHANA.has(p.house);
@@ -88,6 +139,35 @@ function planetReading(p: Planet) {
   if (DUSTHANA.has(p.house)) score -= 1;
   if (p.retrograde) score -= 0.25;
 
+  const notes: string[] = [];
+
+  if (p.combust) {
+    score -= 1;
+    notes.push(
+      "it is combust (very close to the Sun), which dims its independent strength",
+    );
+  }
+
+  // Vargottama: same sign in D1 and D9 — adds stability and strength.
+  if (p.navamsaSign != null && p.navamsaSign === p.signIndex) {
+    score += 0.5;
+    notes.push("it is vargottama (same sign in the Navamsa), which steadies it");
+  }
+
+  // Aspects received: Jupiter's drishti protects; Saturn/Mars pressure.
+  const jup = all.find((q) => q.name === "Jupiter");
+  if (jup && receivesAspectFrom(p, jup)) {
+    score += 0.5;
+    notes.push("Jupiter aspects it, lending protection and growth");
+  }
+  for (const malefic of ["Saturn", "Mars"]) {
+    const q = all.find((x) => x.name === malefic);
+    if (q && q.name !== p.name && receivesAspectFrom(p, q)) {
+      score -= 0.5;
+      notes.push(`${malefic} aspects it, adding pressure and delay`);
+    }
+  }
+
   let status: Status = "okay";
   if (score >= 1.5) status = "good";
   else if (score <= -1.5) status = "challenging";
@@ -103,7 +183,8 @@ function planetReading(p: Planet) {
   const text =
     `${p.name} is ${d.tag}${p.retrograde ? " and retrograde" : ""}, ` +
     `placed in House ${p.house} — ${HOUSE_THEME[p.house]}. ` +
-    `As ${benefMal} it is ${verdict} here.`;
+    `As ${benefMal} it is ${verdict} here.` +
+    (notes.length ? ` Also: ${notes.join("; ")}.` : "");
 
   return { name: p.name, status, dignityTag: d.tag, text };
 }
@@ -143,7 +224,7 @@ export function interpretChart(chart: any, birthDateIso: string) {
     `nakshatra (pada ${asc.pada}). The Lagna sets the lens through which your whole ` +
     `life is read — it shapes your temperament, health and how the world sees you.`;
 
-  const readings = planets.map(planetReading);
+  const readings = planets.map((p) => planetReading(p, planets));
   const good = readings.filter((r) => r.status === "good").map((r) => r.name);
   const chall = readings
     .filter((r) => r.status === "challenging")

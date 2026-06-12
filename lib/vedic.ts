@@ -68,7 +68,50 @@ export interface PlanetResult extends SignInfo {
   retrograde: boolean;
   speed: number;
   house: number;
+  navamsaSign: number;
+  navamsaRashi: string;
+  combust?: boolean;
 }
+
+// Navamsa (D9): each sign splits into 9 parts of 3°20'. The classical
+// movable/fixed/dual start rule reduces to this closed form.
+const NAVAMSA_SPAN = 30 / 9;
+export function navamsaSign(lon: number): number {
+  const L = norm360(lon);
+  const signIndex = Math.floor(L / 30);
+  const within = Math.floor((L - signIndex * 30) / NAVAMSA_SPAN);
+  return (signIndex * 9 + within) % 12;
+}
+
+// Combustion: planet too close to the Sun loses strength. Thresholds in
+// degrees per classical texts (retrograde Mercury/Venus use tighter orbs).
+const COMBUST_ORB: Record<string, number> = {
+  Moon: 12,
+  Mars: 17,
+  Mercury: 14,
+  Venus: 10,
+  Jupiter: 11,
+  Saturn: 15,
+};
+const COMBUST_ORB_RETRO: Record<string, number> = { Mercury: 12, Venus: 8 };
+
+function isCombust(name: string, lon: number, sunLon: number, retro: boolean) {
+  const orb = (retro && COMBUST_ORB_RETRO[name]) || COMBUST_ORB[name];
+  if (!orb) return false;
+  const d = Math.abs(norm360(lon) - norm360(sunLon));
+  return Math.min(d, 360 - d) <= orb;
+}
+
+// Graha drishti (full aspects) by sign offset from the planet's sign.
+export const DRISHTI: Record<string, number[]> = {
+  Sun: [6],
+  Moon: [6],
+  Mercury: [6],
+  Venus: [6],
+  Mars: [3, 6, 7],
+  Jupiter: [4, 6, 8],
+  Saturn: [2, 6, 9],
+};
 
 export interface BirthInput {
   jdUT: number;
@@ -111,15 +154,24 @@ export async function computeChart(input: BirthInput) {
   const ascSign = ascendant.signIndex;
 
   const planets: PlanetResult[] = [];
+  let sunLon = 0;
   for (const g of GRAHAS) {
     const r = swe.calc(jdUT, g.id, flags);
+    if (g.name === "Sun") sunLon = r.longitude;
     const info = describe(r.longitude);
+    const nav = navamsaSign(r.longitude);
     planets.push({
       name: g.name,
       ...info,
       retrograde: r.longitudeSpeed < 0,
       speed: r.longitudeSpeed,
       house: ((info.signIndex - ascSign + 12) % 12) + 1,
+      navamsaSign: nav,
+      navamsaRashi: RASHIS[nav],
+      combust:
+        g.name === "Sun"
+          ? false
+          : isCombust(g.name, r.longitude, sunLon, r.longitudeSpeed < 0),
     });
   }
 
@@ -127,12 +179,16 @@ export async function computeChart(input: BirthInput) {
   const rahuRaw = swe.calc(jdUT, swe.SE_MEAN_NODE, flags);
   const rahu = describe(rahuRaw.longitude);
   const ketu = describe(rahuRaw.longitude + 180);
+  const rahuNav = navamsaSign(rahuRaw.longitude);
+  const ketuNav = navamsaSign(rahuRaw.longitude + 180);
   planets.push({
     name: "Rahu",
     ...rahu,
     retrograde: true,
     speed: rahuRaw.longitudeSpeed,
     house: ((rahu.signIndex - ascSign + 12) % 12) + 1,
+    navamsaSign: rahuNav,
+    navamsaRashi: RASHIS[rahuNav],
   });
   planets.push({
     name: "Ketu",
@@ -140,6 +196,8 @@ export async function computeChart(input: BirthInput) {
     retrograde: true,
     speed: rahuRaw.longitudeSpeed,
     house: ((ketu.signIndex - ascSign + 12) % 12) + 1,
+    navamsaSign: ketuNav,
+    navamsaRashi: RASHIS[ketuNav],
   });
 
   const moon = planets.find((p) => p.name === "Moon")!;
@@ -157,12 +215,51 @@ export async function computeChart(input: BirthInput) {
     };
   });
 
+  // Graha drishti: which planets each planet aspects (sign-based full aspects).
+  const aspects = planets
+    .filter((p) => DRISHTI[p.name])
+    .map((p) => ({
+      from: p.name,
+      house: p.house,
+      aspects: DRISHTI[p.name].map(
+        (off) => (((p.house - 1 + off) % 12) + 1),
+      ),
+      planetsAspected: planets
+        .filter((q) =>
+          DRISHTI[p.name].some(
+            (off) => norm360((q.signIndex - p.signIndex) * 30) === off * 30,
+          ),
+        )
+        .map((q) => q.name),
+    }));
+
+  // Navamsa (D9) chart: marriage, dharma and the soul's deeper promise.
+  const navAsc = navamsaSign(ascendant.lon);
+  const navamsa = {
+    ascSign: navAsc,
+    ascRashi: RASHIS[navAsc],
+    houses: Array.from({ length: 12 }, (_, i) => {
+      const signIndex = (navAsc + i) % 12;
+      return {
+        house: i + 1,
+        signIndex,
+        rashi: RASHIS[signIndex],
+        lord: RASHI_LORDS[signIndex],
+        planets: planets
+          .filter((p) => p.navamsaSign === signIndex)
+          .map((p) => p.name),
+      };
+    }),
+  };
+
   return {
     ayanamsa,
     ayanamsaDms: toDms(ayanamsa),
     ascendant,
     planets,
     houses,
+    navamsa,
+    aspects,
     vimshottari,
   };
 }
