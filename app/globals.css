@@ -952,3 +952,266 @@ tbody tr:hover {
     animation: none;
   }
 }
+
+/* ============================================================
+   Cosmic welcome — revolving black hole (reference image)
+   ============================================================ */
+.bh-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background:
+    radial-gradient(1100px 700px at 72% 14%, rgba(40, 60, 120, 0.25), transparent 65%),
+    radial-gradient(900px 900px at 30% 90%, rgba(70, 40, 20, 0.18), transparent 70%),
+    #020308;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scene-in 1s ease both;
+}
+
+@keyframes scene-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bh-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bh-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2,3,8,0.25), transparent 30%, transparent 55%, rgba(2,3,8,0.82) 88%);
+  pointer-events: none;
+}
+
+.bh-star {
+  position: absolute;
+  border-radius: 50%;
+  background: #e8ecff;
+  opacity: 0.6;
+  animation: bh-tw ease-in-out infinite;
+}
+
+@keyframes bh-tw {
+  0%, 100% { opacity: 0.12; transform: scale(0.7); }
+  50% { opacity: 0.9; transform: scale(1.15); }
+}
+
+.bh-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1100px;
+  pointer-events: none;
+}
+
+/* Accretion disk: tilted, streaked with warm light, slowly revolving. */
+.bh-disk {
+  position: absolute;
+  width: min(115vmin, 880px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 226, 180, 0.85) 0deg 4deg,
+    rgba(150, 90, 45, 0.18) 4deg 11deg,
+    rgba(255, 200, 140, 0.65) 11deg 15deg,
+    rgba(60, 35, 25, 0.12) 15deg 24deg,
+    rgba(235, 220, 255, 0.4) 24deg 27deg,
+    rgba(90, 55, 35, 0.15) 27deg 36deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 16%, #000 21%, #000 62%, transparent 74%);
+  mask: radial-gradient(circle, transparent 16%, #000 21%, #000 62%, transparent 74%);
+  filter: blur(2px) saturate(1.15);
+  will-change: transform;
+  animation: bh-spin 30s linear infinite;
+  opacity: 0.95;
+}
+
+.bh-disk.d2 {
+  width: min(130vmin, 1000px);
+  -webkit-mask: radial-gradient(circle, transparent 24%, #000 30%, #000 58%, transparent 78%);
+  mask: radial-gradient(circle, transparent 24%, #000 30%, #000 58%, transparent 78%);
+  filter: blur(4px) saturate(1.05);
+  will-change: transform;
+  opacity: 0.5;
+  animation: bh-spin 44s linear infinite reverse;
+}
+
+@keyframes bh-spin {
+  from { transform: rotateX(70deg) rotateZ(0deg); }
+  to { transform: rotateX(70deg) rotateZ(360deg); }
+}
+
+/* Soft warm haze where the disk light bends around the hole. */
+.bh-haze {
+  position: absolute;
+  width: min(60vmin, 470px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 190, 120, 0.5),
+    rgba(255, 150, 70, 0.18) 45%,
+    transparent 70%
+  );
+  filter: blur(6px);
+  animation: bh-breathe 6s ease-in-out infinite;
+}
+
+@keyframes bh-breathe {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+/* Event horizon: the black core with a bright photon ring. */
+.bh-core {
+  position: absolute;
+  width: min(26vmin, 200px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #000;
+  box-shadow:
+    0 0 0 2px rgba(255, 230, 190, 0.9),
+    0 0 28px 6px rgba(255, 190, 110, 0.9),
+    0 0 90px 30px rgba(255, 150, 60, 0.45),
+    inset 0 0 30px 10px #000;
+}
+
+/* Polar light jet, angled like the reference. */
+.bh-beam {
+  position: absolute;
+  width: min(9vmin, 64px);
+  height: 60vh;
+  bottom: 50%;
+  background: linear-gradient(
+    to top,
+    rgba(255, 240, 220, 0.5),
+    rgba(200, 215, 255, 0.16) 55%,
+    transparent
+  );
+  transform-origin: bottom center;
+  transform: rotate(24deg);
+  filter: blur(10px);
+  opacity: 0.8;
+}
+
+/* Foreground content */
+.bh-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 24px;
+  max-width: 720px;
+  width: 100%;
+}
+
+.bh-title {
+  font-family: "Great Vibes", "Segoe Script", "Brush Script MT", cursive;
+  font-weight: 400;
+  font-size: clamp(64px, 13vw, 120px);
+  line-height: 1.05;
+  margin: 0;
+  color: #fff6ea;
+  text-shadow:
+    0 0 14px rgba(255, 220, 170, 0.9),
+    0 0 44px rgba(255, 170, 90, 0.55),
+    0 2px 30px rgba(0, 0, 0, 0.8);
+  animation: fade-up 1.1s ease 1.4s both;
+}
+
+.bh-sub {
+  color: #c8bfd8;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin: 8px 0 34px;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.9);
+  animation: fade-up 0.9s ease 2.3s both;
+}
+
+.bh-prompt {
+  font-size: clamp(17px, 3vw, 22px);
+  color: #ffe9c4;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  text-shadow:
+    0 0 16px rgba(255, 190, 110, 0.8),
+    0 1px 10px rgba(0, 0, 0, 0.9);
+  animation: fade-up 0.8s ease 3s both;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bh-langs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.bh-lang {
+  background: rgba(8, 6, 14, 0.55);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 200, 140, 0.28);
+  border-radius: 14px;
+  padding: 14px 10px;
+  cursor: pointer;
+  text-align: center;
+  animation: fade-up 0.6s ease both;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s, background 0.18s;
+}
+
+.bh-lang:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 210, 150, 0.85);
+  background: rgba(30, 18, 10, 0.6);
+  box-shadow: 0 0 22px rgba(255, 180, 100, 0.3);
+}
+
+.bh-lang .bl-nat {
+  display: block;
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff3e2;
+}
+
+.bh-lang .bl-eng {
+  display: block;
+  font-size: 11px;
+  color: #b9a78f;
+  margin-top: 3px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bh-disk,
+  .bh-disk.d2,
+  .bh-haze,
+  .bh-star,
+  .bh-title,
+  .bh-sub,
+  .bh-prompt,
+  .bh-lang {
+    animation: none;
+    opacity: 1;
+  }
+  .bh-disk {
+    transform: rotateX(70deg);
+  }
+  .bh-disk.d2 {
+    transform: rotateX(70deg) rotateZ(40deg);
+  }
+}

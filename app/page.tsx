@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { LANGUAGES, STRINGS, type Lang } from "@/lib/i18n";
+import { STRINGS, type Lang } from "@/lib/i18n";
 import { authEnabled, supabase } from "@/lib/auth";
 import Results from "@/components/Results";
 import MatchMaking from "@/components/MatchMaking";
 import Tarot from "@/components/Tarot";
 import Login from "@/components/Login";
+import CosmicWelcome from "@/components/CosmicWelcome";
 import PlaceInput, { type GeoResult } from "@/components/PlaceInput";
 
 const Cosmos = dynamic(() => import("@/components/Cosmos"), { ssr: false });
@@ -107,26 +108,13 @@ export default function Page() {
 
       <div className="stage">
         {step === "lang" && (
-          <div className="step" key="lang">
-            <div className="kicker">Jyotish · वैदिक ज्योतिष</div>
-            <h1 className="brand">Select your language</h1>
-            <p className="lead">{STRINGS.en.chooseLanguageSub}</p>
-            <div className="lang-grid">
-              {LANGUAGES.map((l) => (
-                <div
-                  key={l.code}
-                  className="lang"
-                  onClick={() => {
-                    setLang(l.code);
-                    afterLanguage();
-                  }}
-                >
-                  <div className="nat">{l.native}</div>
-                  <div className="eng">{l.english}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <CosmicWelcome
+            key="lang"
+            onPick={(code) => {
+              setLang(code);
+              afterLanguage();
+            }}
+          />
         )}
 
         {step === "login" && <Login onDone={() => setStep("menu")} />}
