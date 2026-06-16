@@ -36,7 +36,14 @@ export default function CosmicWelcome({
           loop
           playsInline
           preload="auto"
+          disablePictureInPicture
+          controls={false}
+          controlsList="nodownload nofullscreen noremoteplayback"
+          tabIndex={-1}
           onError={() => setVideoFailed(true)}
+          onLoadedData={(e) => e.currentTarget.play().catch(() => {})}
+          onCanPlay={(e) => e.currentTarget.play().catch(() => {})}
+          onPause={(e) => e.currentTarget.play().catch(() => {})}
         >
           <source src="/welcome.mp4" type="video/mp4" />
         </video>
@@ -77,7 +84,7 @@ export default function CosmicWelcome({
             <button
               key={l.code}
               className="bh-lang"
-              style={{ animationDelay: `${3.4 + i * 0.1}s` }}
+              style={{ animationDelay: `${4 + i * 0.08}s` }}
               onClick={() => onPick(l.code)}
             >
               <span className="bl-nat">{l.native}</span>
