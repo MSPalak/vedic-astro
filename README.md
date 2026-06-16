@@ -1,4 +1,6 @@
-# Jyotish — Vedic Astrology, done with real math
+# TechPandit — Vedic Astrology, done with real math
+
+> No bluff. Just real stuff.
 
 A modern web app for **Vedic (sidereal) astrology** built on the **Swiss Ephemeris**.
 No canned text or random numbers — every chart, period and match is computed from

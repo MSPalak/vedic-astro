@@ -69,8 +69,8 @@ export default function CosmicWelcome({
       <div className="bh-shade" aria-hidden />
 
       <div className="bh-content">
-        <h1 className="bh-title">Jyotish</h1>
-        <div className="bh-sub">वैदिक ज्योतिष · written in the stars</div>
+        <h1 className="bh-brand">TechPandit</h1>
+        <div className="bh-quote">No bluff. Just real stuff.</div>
         <div className="bh-prompt">Select your language</div>
         <div className="bh-langs">
           {LANGUAGES.map((l, i) => (

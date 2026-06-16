@@ -121,7 +121,7 @@ export default function Page() {
 
         {step === "menu" && (
           <div className="step" key="menu">
-            <div className="kicker">Jyotish</div>
+            <div className="kicker">TechPandit</div>
             <h1 className="brand">{t.menuTitle}</h1>
             <p className="lead">{t.menuSub}</p>
             <div className="svc-grid">

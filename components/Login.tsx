@@ -71,7 +71,7 @@ export default function Login({ onDone }: { onDone: () => void }) {
 
   return (
     <div className="step" key="login">
-      <div className="kicker">Jyotish</div>
+      <div className="kicker">TechPandit</div>
       <h1 className="brand" style={{ fontSize: "clamp(30px,6vw,52px)" }}>
         Sign in to continue
       </h1>

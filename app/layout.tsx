@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jyotish — Vedic Astrology Calculator",
+  title: "TechPandit — Vedic Astrology · No bluff. Just real stuff.",
   description:
     "Real sidereal (Lahiri) Vedic astrology: Kundli, planets, Vimshottari Dasha and Panchang, powered by Swiss Ephemeris.",
 };
