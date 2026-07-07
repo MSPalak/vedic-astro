@@ -6,7 +6,7 @@ import { STRINGS, type Lang } from "@/lib/i18n";
 import { authEnabled, supabase } from "@/lib/auth";
 import Results from "@/components/Results";
 import MatchMaking from "@/components/MatchMaking";
-import Tarot from "@/components/Tarot";
+import PalmReading from "@/components/PalmReading";
 import Login from "@/components/Login";
 import CosmicWelcome from "@/components/CosmicWelcome";
 import PlaceInput, { type GeoResult } from "@/components/PlaceInput";
@@ -20,7 +20,7 @@ type Step =
   | "kundli"
   | "kundliResult"
   | "match"
-  | "tarot";
+  | "palm";
 
 export default function Page() {
   const [step, setStep] = useState<Step>("lang");
@@ -87,18 +87,16 @@ export default function Page() {
   const services = [
     { key: "kundli", title: t.svcKundli, desc: t.svcKundliDesc, on: true },
     { key: "match", title: t.svcMatch, desc: t.svcMatchDesc, on: true },
-    { key: "palm", title: t.svcPalm, desc: "", on: false },
-    { key: "face", title: t.svcFace, desc: "", on: false },
     {
-      key: "tarot",
-      title: t.svcTarot,
-      desc: "Question-led Tarot — Past · Present · Future spread",
+      key: "palm",
+      title: t.svcPalm,
+      desc: t.svcPalmDesc,
       on: true,
     },
   ];
 
-  const goto = (key: string) =>
-    key === "kundli" ? "kundli" : key === "match" ? "match" : "tarot";
+  const goto = (key: string): Step =>
+    key === "kundli" ? "kundli" : key === "match" ? "match" : "palm";
 
   return (
     <>
@@ -216,8 +214,8 @@ export default function Page() {
           <MatchMaking t={t} onBack={() => setStep("menu")} />
         )}
 
-        {step === "tarot" && (
-          <Tarot t={t} onBack={() => setStep("menu")} />
+        {step === "palm" && (
+          <PalmReading t={t} onBack={() => setStep("menu")} />
         )}
       </div>
     </>

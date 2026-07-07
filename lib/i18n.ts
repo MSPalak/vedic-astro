@@ -44,6 +44,7 @@ export interface Strings {
   svcMatch?: string;
   svcMatchDesc?: string;
   svcPalm?: string;
+  svcPalmDesc?: string;
   svcFace?: string;
   svcTarot?: string;
   comingSoon?: string;
@@ -51,6 +52,11 @@ export interface Strings {
   bride?: string;
   matchBtn?: string;
   matching?: string;
+  palmTitle?: string;
+  palmSub?: string;
+  palmUpload?: string;
+  palmAnalyzing?: string;
+  palmRetake?: string;
 }
 
 const MENU_EN = {
@@ -61,6 +67,7 @@ const MENU_EN = {
   svcMatch: "Match Making",
   svcMatchDesc: "Ashtakoota Guna Milan — bride & groom compatibility",
   svcPalm: "Palm Reading",
+  svcPalmDesc: "Upload a photo of your palm for a hast rekha reading",
   svcFace: "Face Reading",
   svcTarot: "Tarot Reading",
   comingSoon: "Coming soon",
@@ -68,6 +75,11 @@ const MENU_EN = {
   bride: "Bride's details",
   matchBtn: "Check compatibility",
   matching: "Matching the stars…",
+  palmTitle: "Palm Reading · Hast Rekha",
+  palmSub: "Take or upload a clear photo of your open right palm. Good, even light and all lines visible gives the best reading.",
+  palmUpload: "Choose or capture palm photo",
+  palmAnalyzing: "Reading the lines of your hand…",
+  palmRetake: "Try another photo",
 };
 
 export const STRINGS: Record<Lang, Strings> = {

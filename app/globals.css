@@ -985,6 +985,53 @@ tbody tr:hover {
   pointer-events: none;
 }
 
+/* ---------- Palm reading ---------- */
+.palm-drop {
+  border: 2px dashed var(--line);
+  border-radius: 18px;
+  padding: 44px 20px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 14px;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.palm-drop:hover {
+  border-color: var(--accent);
+  background: rgba(244, 130, 15, 0.04);
+}
+
+.palm-emoji {
+  font-size: 52px;
+  margin-bottom: 10px;
+}
+
+.palm-photo {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: #faf6ff;
+}
+
+/* Hide every native media control (play button, scrubber, PiP, the
+   start-playback overlay some mobile browsers force on autoplay video). */
+.bh-video::-webkit-media-controls,
+.bh-video::-webkit-media-controls-enclosure,
+.bh-video::-webkit-media-controls-panel,
+.bh-video::-webkit-media-controls-play-button,
+.bh-video::-webkit-media-controls-overlay-play-button,
+.bh-video::-webkit-media-controls-start-playback-button,
+.bh-video::-webkit-media-controls-timeline,
+.bh-video::-webkit-media-controls-current-time-display,
+.bh-video::-webkit-media-controls-time-remaining-display,
+.bh-video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+}
+
 .bh-shade {
   position: absolute;
   inset: 0;

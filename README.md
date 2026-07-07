@@ -18,8 +18,8 @@ actual planetary positions using the **Lahiri ayanamsa**.
 - **Match Making (Guna Milan)** — the classical **Ashtakoota 36-point** system
   (Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot, Nadi) **plus Mangal Dosha
   (Manglik)** analysis, with a compatibility %, confidence and dosha flags.
-- **Tarot** — full 78-card Rider–Waite deck, 1 / 3 / 5-card spreads with reversals
-  and a synthesised reading.
+- **Palm Reading (Hast Rekha)** — upload or capture a photo of your palm for an
+  AI-vision reading of the major lines, mounts and hand shape (needs `ANTHROPIC_API_KEY`).
 - **Daily Panchang** — Tithi, Nakshatra, Yoga, Karana, Vaara for any date/place.
 - **8 Indian languages** (English, हिन्दी, தமிழ், తెలుగు, বাংলা, मराठी, ગુજરાતী, ಕನ್ನಡ).
 - **Cinematic 3D cosmos** (Three.js) with a pure-CSS fallback when WebGL is absent.
