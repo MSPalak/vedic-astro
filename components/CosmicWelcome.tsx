@@ -5,7 +5,8 @@ import { LANGUAGES, type Lang } from "@/lib/i18n";
 
 // Moment in welcome.mp4 when the sun rushes close to camera — the overlay
 // (brand + language choices) reveals exactly then, synced to the footage.
-const SUN_NEAR_AT = 10.5;
+// Once revealed it stays while the video loops underneath.
+const SUN_NEAR_AT = 7;
 
 export default function CosmicWelcome({
   onPick,
@@ -103,7 +104,7 @@ export default function CosmicWelcome({
 
       {revealed && (
         <div className="bh-content">
-          <h1 className="bh-brand">TechPandit</h1>
+          <h1 className="bh-brand">Welcome to TechPandit</h1>
           <div className="bh-quote">No bluff. Just real stuff.</div>
           <div className="bh-prompt">Select your language</div>
           <div className="bh-langs">

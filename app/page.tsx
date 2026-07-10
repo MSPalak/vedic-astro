@@ -6,13 +6,11 @@ import { authEnabled, supabase } from "@/lib/auth";
 import Results from "@/components/Results";
 import MatchMaking from "@/components/MatchMaking";
 import PalmReading from "@/components/PalmReading";
-import Login from "@/components/Login";
 import CosmicWelcome from "@/components/CosmicWelcome";
 import PlaceInput, { type GeoResult } from "@/components/PlaceInput";
 
 type Step =
   | "lang"
-  | "login"
   | "menu"
   | "kundli"
   | "kundliResult"
@@ -38,10 +36,9 @@ export default function Page() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // After choosing a language, always ask to sign in (guests can skip).
-  // Already-authenticated users go straight to the menu.
-  const afterLanguage = () =>
-    setStep(authEnabled && authed ? "menu" : "login");
+  // No sign-in gate: choosing a language goes straight in. Accounts can
+  // come later as an optional feature, never as friction.
+  const afterLanguage = () => setStep("menu");
 
   const [name, setName] = useState("");
   const [date, setDate] = useState("1995-08-15");
@@ -96,35 +93,11 @@ export default function Page() {
   const goto = (key: string): Step =>
     key === "kundli" ? "kundli" : key === "match" ? "match" : "palm";
 
-  // The real black-hole footage grounds every screen after login —
-  // one persistent element, so it never restarts between clicks.
-  const journeyVideo = step !== "lang" && step !== "login";
-
   return (
     <>
       <div className="scene" />
 
       <div className="stage">
-        {journeyVideo && (
-          <>
-            <video
-              key="journey-video"
-              className="page-video"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              disablePictureInPicture
-              controls={false}
-              tabIndex={-1}
-              onPause={(e) => e.currentTarget.play().catch(() => {})}
-            >
-              <source src="/explore.mp4" type="video/mp4" />
-            </video>
-            <div className="page-shade" key="journey-shade" />
-          </>
-        )}
         {step === "lang" && (
           <CosmicWelcome
             key="lang"
@@ -134,8 +107,6 @@ export default function Page() {
             }}
           />
         )}
-
-        {step === "login" && <Login onDone={() => setStep("menu")} />}
 
         {step === "menu" && (
           <div className="step" key="menu">
