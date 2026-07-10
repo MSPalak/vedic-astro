@@ -233,7 +233,7 @@ export default function MatchMaking({
                 background:
                   res.manglik.combined.status === "caution"
                     ? undefined
-                    : "#eafaf2",
+                    : "rgba(31, 170, 107, 0.16)",
                 color:
                   res.manglik.combined.status === "caution"
                     ? "#fff"

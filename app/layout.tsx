@@ -22,7 +22,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Marcellus&family=Inter:wght@400;600;700;800&family=Great+Vibes&display=swap"
           rel="stylesheet"
         />
       </head>

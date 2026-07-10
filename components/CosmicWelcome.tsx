@@ -1,18 +1,39 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LANGUAGES, type Lang } from "@/lib/i18n";
 
-// Welcome screen: the black-hole video plays full-screen the moment the
-// site opens; the title and language choices fade in over it within
-// seconds. If the video can't play, a pure-CSS revolving black hole
-// (accretion disk + starfield) takes its place automatically.
+// Moment in welcome.mp4 when the sun rushes close to camera — the overlay
+// (brand + language choices) reveals exactly then, synced to the footage.
+const SUN_NEAR_AT = 10.5;
+
 export default function CosmicWelcome({
   onPick,
 }: {
   onPick: (l: Lang) => void;
 }) {
   const [videoFailed, setVideoFailed] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Safety net: if playback stalls or autoplay is blocked, reveal anyway.
+  useEffect(() => {
+    revealTimer.current = setTimeout(
+      () => setRevealed(true),
+      (SUN_NEAR_AT + 2.5) * 1000,
+    );
+    return () => {
+      if (revealTimer.current) clearTimeout(revealTimer.current);
+    };
+  }, []);
+
+  // If the video fails entirely (CSS fallback scene), don't make people wait.
+  useEffect(() => {
+    if (videoFailed) {
+      const t = setTimeout(() => setRevealed(true), 2500);
+      return () => clearTimeout(t);
+    }
+  }, [videoFailed]);
 
   const stars = useMemo(
     () =>
@@ -44,6 +65,11 @@ export default function CosmicWelcome({
           onLoadedData={(e) => e.currentTarget.play().catch(() => {})}
           onCanPlay={(e) => e.currentTarget.play().catch(() => {})}
           onPause={(e) => e.currentTarget.play().catch(() => {})}
+          onTimeUpdate={(e) => {
+            if (e.currentTarget.currentTime >= SUN_NEAR_AT) {
+              setRevealed(true);
+            }
+          }}
         >
           <source src="/welcome.mp4" type="video/mp4" />
         </video>
@@ -75,24 +101,26 @@ export default function CosmicWelcome({
 
       <div className="bh-shade" aria-hidden />
 
-      <div className="bh-content">
-        <h1 className="bh-brand">TechPandit</h1>
-        <div className="bh-quote">No bluff. Just real stuff.</div>
-        <div className="bh-prompt">Select your language</div>
-        <div className="bh-langs">
-          {LANGUAGES.map((l, i) => (
-            <button
-              key={l.code}
-              className="bh-lang"
-              style={{ animationDelay: `${4 + i * 0.08}s` }}
-              onClick={() => onPick(l.code)}
-            >
-              <span className="bl-nat">{l.native}</span>
-              <span className="bl-eng">{l.english}</span>
-            </button>
-          ))}
+      {revealed && (
+        <div className="bh-content">
+          <h1 className="bh-brand">TechPandit</h1>
+          <div className="bh-quote">No bluff. Just real stuff.</div>
+          <div className="bh-prompt">Select your language</div>
+          <div className="bh-langs">
+            {LANGUAGES.map((l, i) => (
+              <button
+                key={l.code}
+                className="bh-lang"
+                style={{ animationDelay: `${1.5 + i * 0.08}s` }}
+                onClick={() => onPick(l.code)}
+              >
+                <span className="bl-nat">{l.native}</span>
+                <span className="bl-eng">{l.english}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import { STRINGS, type Lang } from "@/lib/i18n";
 import { authEnabled, supabase } from "@/lib/auth";
 import Results from "@/components/Results";
@@ -10,8 +9,6 @@ import PalmReading from "@/components/PalmReading";
 import Login from "@/components/Login";
 import CosmicWelcome from "@/components/CosmicWelcome";
 import PlaceInput, { type GeoResult } from "@/components/PlaceInput";
-
-const Cosmos = dynamic(() => import("@/components/Cosmos"), { ssr: false });
 
 type Step =
   | "lang"
@@ -41,9 +38,10 @@ export default function Page() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // After choosing a language, require login when auth is configured.
+  // After choosing a language, always ask to sign in (guests can skip).
+  // Already-authenticated users go straight to the menu.
   const afterLanguage = () =>
-    setStep(authEnabled && !authed ? "login" : "menu");
+    setStep(authEnabled && authed ? "menu" : "login");
 
   const [name, setName] = useState("");
   const [date, setDate] = useState("1995-08-15");
@@ -98,13 +96,35 @@ export default function Page() {
   const goto = (key: string): Step =>
     key === "kundli" ? "kundli" : key === "match" ? "match" : "palm";
 
+  // The real black-hole footage grounds every screen after login —
+  // one persistent element, so it never restarts between clicks.
+  const journeyVideo = step !== "lang" && step !== "login";
+
   return (
     <>
-      <div className="scene">
-        <Cosmos />
-      </div>
+      <div className="scene" />
 
       <div className="stage">
+        {journeyVideo && (
+          <>
+            <video
+              key="journey-video"
+              className="page-video"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              disablePictureInPicture
+              controls={false}
+              tabIndex={-1}
+              onPause={(e) => e.currentTarget.play().catch(() => {})}
+            >
+              <source src="/explore.mp4" type="video/mp4" />
+            </video>
+            <div className="page-shade" key="journey-shade" />
+          </>
+        )}
         {step === "lang" && (
           <CosmicWelcome
             key="lang"

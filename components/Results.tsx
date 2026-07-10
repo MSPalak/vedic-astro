@@ -33,7 +33,7 @@ const HOUSE_POS: [number, number][] = [
 function NorthChart({ houses }: { houses: any[] }) {
   return (
     <svg className="chart-svg" viewBox="0 0 300 300">
-      <rect x="1" y="1" width="298" height="298" fill="none" stroke="#e9e5f2" />
+      <rect x="1" y="1" width="298" height="298" fill="none" stroke="#4a3f6e" />
       <line x1="0" y1="0" x2="300" y2="300" />
       <line x1="300" y1="0" x2="0" y2="300" />
       <line x1="150" y1="0" x2="300" y2="150" />
@@ -252,7 +252,13 @@ export default function Results({
                   ))}
                 </div>
                 {area && (
-                  <div className="now" style={{ background: "#fbf3ff", color: "var(--ink)" }}>
+                  <div
+                    className="now"
+                    style={{
+                      background: "rgba(139, 61, 240, 0.16)",
+                      color: "var(--ink)",
+                    }}
+                  >
                     {ip.areas[area]}
                   </div>
                 )}
