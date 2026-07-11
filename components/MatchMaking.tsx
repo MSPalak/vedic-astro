@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PlaceInput, { type GeoResult } from "./PlaceInput";
+import { saveReading } from "@/lib/db";
 
 // Animated count-up ring: sweeps the conic fill and counts the score.
 function ScoreRing({
@@ -152,6 +153,11 @@ export default function MatchMaking({
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Match failed");
       setRes(d);
+      saveReading(
+        "match",
+        `${groom.name || "Groom"} & ${bride.name || "Bride"} · ${d.total}/36`,
+        d,
+      );
     } catch (e: any) {
       setErr(e.message);
     } finally {

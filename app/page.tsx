@@ -7,10 +7,13 @@ import Results from "@/components/Results";
 import MatchMaking from "@/components/MatchMaking";
 import PalmReading from "@/components/PalmReading";
 import CosmicWelcome from "@/components/CosmicWelcome";
+import Login from "@/components/Login";
+import { saveReading } from "@/lib/db";
 import PlaceInput, { type GeoResult } from "@/components/PlaceInput";
 
 type Step =
   | "lang"
+  | "login"
   | "menu"
   | "kundli"
   | "kundliResult"
@@ -72,6 +75,8 @@ export default function Page() {
       if (!r.ok) throw new Error(d.error || "Calculation failed");
       setRes(d);
       setStep("kundliResult");
+      // Saved to the account when signed in; silent no-op for guests.
+      saveReading("kundli", `${name || "Kundli"} · ${date}`, d);
     } catch (e: any) {
       setErr(e.message);
     } finally {
@@ -108,11 +113,24 @@ export default function Page() {
           />
         )}
 
+        {step === "login" && <Login onDone={() => setStep("menu")} />}
+
         {step === "menu" && (
           <div className="step" key="menu">
             <div className="kicker">TechPandit</div>
             <h1 className="brand">{t.menuTitle}</h1>
             <p className="lead">{t.menuSub}</p>
+            {authEnabled && !authed && (
+              <p style={{ marginTop: -18, marginBottom: 24 }}>
+                <button
+                  className="btn ghost"
+                  style={{ padding: "8px 18px", fontSize: 13 }}
+                  onClick={() => setStep("login")}
+                >
+                  Sign in to save your readings
+                </button>
+              </p>
+            )}
             <div className="svc-grid">
               {services.map((s) => (
                 <div

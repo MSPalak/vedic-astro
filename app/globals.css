@@ -1143,3 +1143,11 @@ summary b {
     transform: rotateX(70deg) rotateZ(40deg);
   }
 }
+
+.login-or {
+  margin: 18px 0;
+  text-align: center;
+  color: var(--faint);
+  font-size: 13px;
+  letter-spacing: 1px;
+}

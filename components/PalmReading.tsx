@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { saveReading } from "@/lib/db";
 
 // Downscale to a max edge and re-encode as JPEG so the upload stays small
 // and within the API's size cap, regardless of the phone camera's megapixels.
@@ -69,6 +70,11 @@ export default function PalmReading({
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Reading failed.");
       setReading(d.reading);
+      if (d.source === "ai") {
+        saveReading("palm", `Palm reading · ${new Date().toDateString()}`, {
+          reading: d.reading,
+        });
+      }
     } catch (ex: any) {
       setErr(ex.message);
     } finally {

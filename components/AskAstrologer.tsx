@@ -1,6 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  loadRecentQuestions,
+  saveQuestion,
+  type StoredQuestion,
+} from "@/lib/db";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -16,7 +21,13 @@ export default function AskAstrologer({ data }: { data: any }) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [past, setPast] = useState<StoredQuestion[]>([]);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Signed-in visitors see their recent questions (silent no-op otherwise).
+  useEffect(() => {
+    loadRecentQuestions(5).then(setPast);
+  }, []);
 
   async function ask(q: string) {
     const question = q.trim();
@@ -34,6 +45,11 @@ export default function AskAstrologer({ data }: { data: any }) {
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "The astrologer could not answer.");
       setMsgs((m) => [...m, { role: "assistant", content: d.answer }]);
+      // Stored to the user's account when signed in; no-op for guests.
+      saveQuestion(question, d.answer, {
+        name: data?.input?.name,
+        date: data?.input?.date,
+      });
       setTimeout(
         () => listRef.current?.scrollTo({ top: 99999, behavior: "smooth" }),
         60,
@@ -63,6 +79,29 @@ export default function AskAstrologer({ data }: { data: any }) {
             </button>
           ))}
         </div>
+      )}
+
+      {past.length > 0 && msgs.length === 0 && (
+        <details style={{ marginBottom: 14, borderBottom: "none" }}>
+          <summary>Your previous questions ({past.length})</summary>
+          <div style={{ padding: "4px 0 8px" }}>
+            {past.map((q) => (
+              <div key={q.id} style={{ margin: "10px 0" }}>
+                <p style={{ margin: 0, fontSize: 13.5 }}>
+                  <b>{q.question}</b>
+                </p>
+                <p
+                  className="muted"
+                  style={{ margin: "4px 0 0", fontSize: 13, lineHeight: 1.6 }}
+                >
+                  {q.answer.length > 280
+                    ? q.answer.slice(0, 280) + "…"
+                    : q.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </details>
       )}
 
       {msgs.length > 0 && (
