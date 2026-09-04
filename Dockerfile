@@ -26,5 +26,8 @@ COPY --from=build /app/public ./public
 # Swiss Ephemeris WASM + ephemeris data must be present at runtime.
 COPY --from=build /app/node_modules/swisseph-wasm ./node_modules/swisseph-wasm
 
+# Run unprivileged: the server only reads its bundle, never writes.
+USER node
+
 EXPOSE 4321
 CMD ["node", "server.js"]

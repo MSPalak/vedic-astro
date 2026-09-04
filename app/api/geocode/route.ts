@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cached } from "@/lib/cache";
+import { clientIp, rateLimit, tooMany } from "@/lib/server/ratelimit";
+import { cleanText } from "@/lib/server/validate";
 
 export const runtime = "nodejs";
 
 // Free, key-less geocoding via Open-Meteo. Returns lat/lon + IANA timezone.
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q")?.trim();
+  const rl = rateLimit(`geo:${clientIp(req)}`, 60, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfterSec);
+
+  const q = cleanText(req.nextUrl.searchParams.get("q"), 64);
   if (!q) {
     return NextResponse.json({ results: [] });
   }

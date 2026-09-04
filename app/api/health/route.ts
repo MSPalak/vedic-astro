@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSwe } from "@/lib/swe";
+import { getSwe } from "@/lib/astro/swe";
 
 export const runtime = "nodejs";
 

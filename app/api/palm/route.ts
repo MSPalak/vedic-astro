@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { palmEnabled, readPalm } from "@/lib/palm";
+import { palmEnabled, readPalm } from "@/lib/ai/palm";
+import { clientIp, rateLimit, tooMany } from "@/lib/server/ratelimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -8,6 +9,9 @@ export const maxDuration = 60;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`palm:${clientIp(req)}`, 6, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfterSec);
+
   try {
     const { image } = (await req.json()) ?? {};
     if (typeof image !== "string" || !image) {

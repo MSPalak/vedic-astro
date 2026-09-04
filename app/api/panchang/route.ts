@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { toJulianDayUT } from "@/lib/time";
-import { computePanchang } from "@/lib/panchang";
+import { toJulianDayUT } from "@/lib/astro/time";
+import { computePanchang } from "@/lib/astro/panchang";
+import { clientIp, rateLimit, tooMany } from "@/lib/server/ratelimit";
+import { isDateStr, isTimeStr, isTzStr } from "@/lib/server/validate";
 
 export const runtime = "nodejs";
 
 // Daily Panchang for any date (defaults to local noon of the given zone).
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`panchang:${clientIp(req)}`, 30, 60_000);
+  if (!rl.ok) return tooMany(rl.retryAfterSec);
+
   try {
     const body = await req.json();
     const { date, time, tz } = body ?? {};
-    if (!date || !tz) {
+    if (!isDateStr(date) || !isTzStr(tz) || (time && !isTimeStr(time))) {
       return NextResponse.json(
         { error: "Required: date, tz" },
         { status: 400 },
